@@ -111,14 +111,27 @@ void LuaScript::initialize() {
 void LuaScript::loadIntoLuaState() {
     luaL_getsubtable(_luaState, LUA_REGISTRYINDEX, "_LOADED");
 
+    // if loaded already, do nothing
+    lua_getfield(_luaState, -1, _filename.c_str());
+    if (lua_toboolean(_luaState, -1)) {
+        lua_pop(_luaState, 1);
+        return;
+    }
+
+    // remove result of lua_getfield
+    lua_pop(_luaState, 1);
+
+    // load file onto stack
     int errorCode = luaL_loadfile(_luaState, luafile);
     handleLuaLoadError(errorCode);
     if (errorCode) return;
 
+    // execute loaded file
     errorCode = lua_pcall(_luaState, 0, 1, 0);
     handleLuaCallError(errorCode);
     if (errorCode) return;
 
+    // put returned module into _LOADED
     lua_setfield(_luaState, -2, _filename.c_str());
     lua_pop(_luaState, 1);
 }
