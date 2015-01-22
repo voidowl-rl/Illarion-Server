@@ -39,7 +39,7 @@ void LuaWeaponScript::onAttack(Character *Attacker, Character *Defender) {
 }
 
 Character *LuaWeaponScript::setTarget(Character *Monster, const std::vector<Character *> &CandidateList) {
-    luabind::object luaCandidateList = luabind::newtable(_luaState);
+    luabind::object luaCandidateList = luabind::newtable(L);
     int index = 1;
 
     for (const auto &candidate : CandidateList) {

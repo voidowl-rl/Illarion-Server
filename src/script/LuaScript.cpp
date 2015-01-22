@@ -46,7 +46,7 @@ extern "C" {
 #include "script/forwarder.hpp"
 #include "script/binding/binding.hpp"
 
-lua_State *LuaScript::_luaState = 0;
+lua_State *LuaScript::L = 0;
 bool LuaScript::initialized = false;
 
 LuaScript::LuaScript() {
@@ -70,23 +70,23 @@ LuaScript::LuaScript(std::string filename) {
 LuaScript::LuaScript(const std::string &code, const std::string &scriptname) {
     initialize();
 
-    luaL_getsubtable(_luaState, LUA_REGISTRYINDEX, "_LOADED");
+    luaL_getsubtable(L, LUA_REGISTRYINDEX, "_LOADED");
 
-    int errorCode = luaL_loadbuffer(_luaState, code.c_str(), code.length(), scriptname.c_str());
+    int errorCode = luaL_loadbuffer(L, code.c_str(), code.length(), scriptname.c_str());
     handleLuaLoadError(errorCode);
 
-    errorCode = lua_pcall(_luaState, 0, LUA_MULTRET, 0);
+    errorCode = lua_pcall(L, 0, LUA_MULTRET, 0);
     handleLuaCallError(errorCode);
 
-    lua_setfield(_luaState, -2, _filename.c_str());
-    lua_pop(_luaState, 1);
+    lua_setfield(L, -2, _filename.c_str());
+    lua_pop(L, 1);
 }
 
 void LuaScript::initialize() {
     if (!initialized) {
         initialized = true;
-        _luaState = luaL_newstate();
-        luabind::open(_luaState);
+        L = luaL_newstate();
+        luabind::open(L);
 
         // use another error function to surpress errors from
         // non-existant entry points and to display a backtrace
@@ -98,42 +98,42 @@ void LuaScript::initialize() {
         strcpy(path, Config::instance().scriptdir().c_str());
         strcat(path, "?.lua");
 
-        lua_pushglobaltable(_luaState);
-        lua_pushstring(_luaState, "package");
-        lua_gettable(_luaState, -2);
+        lua_pushglobaltable(L);
+        lua_pushstring(L, "package");
+        lua_gettable(L, -2);
         
-        lua_pushstring(_luaState, "path");
-        lua_pushstring(_luaState, path);
-        lua_settable(_luaState, -3);
+        lua_pushstring(L, "path");
+        lua_pushstring(L, path);
+        lua_settable(L, -3);
     }
 }
 
 void LuaScript::loadIntoLuaState() {
-    luaL_getsubtable(_luaState, LUA_REGISTRYINDEX, "_LOADED");
+    luaL_getsubtable(L, LUA_REGISTRYINDEX, "_LOADED");
 
     // if loaded already, do nothing
-    lua_getfield(_luaState, -1, _filename.c_str());
-    if (lua_toboolean(_luaState, -1)) {
-        lua_pop(_luaState, 1);
+    lua_getfield(L, -1, _filename.c_str());
+    if (lua_toboolean(L, -1)) {
+        lua_pop(L, 1);
         return;
     }
 
     // remove result of lua_getfield
-    lua_pop(_luaState, 1);
+    lua_pop(L, 1);
 
     // load file onto stack
-    int errorCode = luaL_loadfile(_luaState, luafile);
+    int errorCode = luaL_loadfile(L, luafile);
     handleLuaLoadError(errorCode);
     if (errorCode) return;
 
     // execute loaded file
-    errorCode = lua_pcall(_luaState, 0, 1, 0);
+    errorCode = lua_pcall(L, 0, 1, 0);
     handleLuaCallError(errorCode);
     if (errorCode) return;
 
     // put returned module into _LOADED
-    lua_setfield(_luaState, -2, _filename.c_str());
-    lua_pop(_luaState, 1);
+    lua_setfield(L, -2, _filename.c_str());
+    lua_pop(L, 1);
 }
 
 void LuaScript::handleLuaLoadError(int errorCode) {
@@ -188,8 +188,8 @@ void LuaScript::shutdownLua() {
 
     if (initialized) {
         initialized = false;
-        lua_close(_luaState);
-        _luaState = 0;
+        lua_close(L);
+        L = 0;
     }
 }
 
@@ -227,13 +227,13 @@ int LuaScript::add_backtrace(lua_State *L) {
 }
 
 void LuaScript::triggerScriptError(const std::string &msg) {
-    lua_pushstring(_luaState, msg.c_str());
-    throw luabind::error(_luaState);
+    lua_pushstring(L, msg.c_str());
+    throw luabind::error(L);
 }
 
 void LuaScript::writeErrorMsg() {
-    const char *c_err = lua_tostring(_luaState, -1);
-    lua_pop(_luaState, 1);
+    const char *c_err = lua_tostring(L, -1);
+    lua_pop(L, 1);
 
     std::string err;
 
@@ -241,10 +241,10 @@ void LuaScript::writeErrorMsg() {
         err = c_err;
     } else {
         err = "UNKNOWN ERROR, CONTACT SERVER DEVELOPER";
-        lua_pushstring(_luaState, err.c_str());
-        add_backtrace(_luaState);
-        err = lua_tostring(_luaState, -1);
-        lua_pop(_luaState, 1);
+        lua_pushstring(L, err.c_str());
+        add_backtrace(L);
+        err = lua_tostring(L, -1);
+        lua_pop(L, 1);
     }
 
     if (err.length() > 1) {
@@ -261,10 +261,10 @@ void LuaScript::writeCastErrorMsg(const std::string &entryPoint, const luabind::
 
 void LuaScript::writeDebugMsg(const std::string &msg) {
     if (Config::instance().debug) {
-        lua_pushstring(_luaState, ("Debug Message: " + msg).c_str());
-        add_backtrace(_luaState);
-        std::string backtrace = lua_tostring(_luaState, -1);
-        lua_pop(_luaState, 1);
+        lua_pushstring(L, ("Debug Message: " + msg).c_str());
+        add_backtrace(L);
+        std::string backtrace = lua_tostring(L, -1);
+        lua_pop(L, 1);
 
         if (backtrace.length() > 0) {
             Logger::notice(LogFacility::Script) << backtrace << Log::end;
@@ -273,10 +273,10 @@ void LuaScript::writeDebugMsg(const std::string &msg) {
 }
 
 void LuaScript::writeDeprecatedMsg(const std::string &deprecatedEntity) {
-    lua_pushstring(_luaState, ("Use of DEPRECATED " + deprecatedEntity).c_str());
-    add_backtrace(_luaState);
-    std::string backtrace = lua_tostring(_luaState, -1);
-    lua_pop(_luaState, 1);
+    lua_pushstring(L, ("Use of DEPRECATED " + deprecatedEntity).c_str());
+    add_backtrace(L);
+    std::string backtrace = lua_tostring(L, -1);
+    lua_pop(L, 1);
 
     if (backtrace.length() > 0) {
         Logger::warn(LogFacility::Script) << backtrace << Log::end;
@@ -284,7 +284,7 @@ void LuaScript::writeDeprecatedMsg(const std::string &deprecatedEntity) {
 }
 
 luabind::object LuaScript::buildEntrypoint(const std::string &entrypoint) {
-    luabind::object obj = luabind::registry(_luaState);
+    luabind::object obj = luabind::registry(L);
     obj = obj["_LOADED"][_filename];
 
     if (luabind::type(obj) != LUA_TTABLE) {
@@ -310,7 +310,7 @@ bool LuaScript::existsQuestEntrypoint(const std::string &entrypoint) const {
 }
 
 bool LuaScript::existsEntrypoint(const std::string &entrypoint) const {
-    luabind::object obj = luabind::registry(_luaState);
+    luabind::object obj = luabind::registry(L);
     obj = obj["_LOADED"][_filename];
 
     if (luabind::type(obj) != LUA_TTABLE) {
@@ -404,13 +404,13 @@ void LuaScript::init_base_functions() {
     const luaL_Reg *lib = lualibs;
 
     for (; lib->func; lib++) {
-        luaL_requiref(_luaState, lib->name, lib->func, 1);
-        lua_pop(_luaState, 1);  // remove lib
+        luaL_requiref(L, lib->name, lib->func, 1);
+        lua_pop(L, 1);  // remove lib
     }
 
 
 
-    luabind::module(_luaState)
+    luabind::module(L)
     [
         binding::armor_struct(),
         binding::attack_boni(),
@@ -460,7 +460,7 @@ void LuaScript::init_base_functions() {
         luabind::def("log", log_lua)
     ];
 
-    luabind::object globals = luabind::globals(_luaState);
+    luabind::object globals = luabind::globals(L);
     globals["world"] = World::get();
     globals["ScriptVars"] = &Data::ScriptVariables;
 }

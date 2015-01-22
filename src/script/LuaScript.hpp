@@ -87,7 +87,7 @@ public:
     }
 
     static lua_State *getLuaState() {
-        return _luaState;
+        return L;
     }
 
     static void shutdownLua();
@@ -140,7 +140,7 @@ public:
     static void writeDebugMsg(const std::string &msg);
 
 protected:
-    static lua_State *_luaState;
+    static lua_State *L;
     static bool initialized;
 
     template<typename... Args>

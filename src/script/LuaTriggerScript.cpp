@@ -35,7 +35,7 @@ LuaTriggerScript::LuaTriggerScript(const std::string &filename, const position &
 LuaTriggerScript::~LuaTriggerScript() {}
 
 void LuaTriggerScript::init_functions() {
-    luabind::object globals = luabind::globals(_luaState);
+    luabind::object globals = luabind::globals(L);
     globals["thisField"] = _pos;
 }
 

@@ -110,7 +110,7 @@ bool LuaMonsterScript::setTarget(Character *Monster, const std::vector<Character
         return false;
     }
 
-    luabind::object luaCandidateList = luabind::newtable(_luaState);
+    luabind::object luaCandidateList = luabind::newtable(L);
     int index = 1;
 
     for (const auto &candidate : CandidateList) {
