@@ -5,3 +5,4 @@ libtoolize \
 && autoheader \
 && automake -a \
 && autoconf
+

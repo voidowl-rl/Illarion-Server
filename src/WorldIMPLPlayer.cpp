@@ -115,7 +115,7 @@ bool World::active_language_command(Player *cp, const std::string &language) {
         cp->setActiveLanguage(6);
     }
 
-    if (language == "fairy") {
+    /*if (language == "fairy") {
         cp->setActiveLanguage(7);
     }
 
@@ -125,10 +125,10 @@ bool World::active_language_command(Player *cp, const std::string &language) {
 
     if (language == "goblin") {
         cp->setActiveLanguage(9);
-    }
+    }*/
 
     if (language == "ancient") {
-        cp->setActiveLanguage(10);
+        cp->setActiveLanguage(7);
     }
 
     return true;

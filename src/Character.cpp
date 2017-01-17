@@ -1245,24 +1245,31 @@ void Character::increaseMentalCapacity(int value) {
 }
 
 std::string Character::alterSpokenMessage(const std::string &message, int languageSkill) const {
-    int counter=0;
     std::string alteredMessage;
+    alteredMessage = message;
 
-    alteredMessage=message;
-
-    while (message[counter]!=0) {
-        if (Random::uniform(0,70)>languageSkill) {
-            alteredMessage[counter]='*';
+    if (languageSkill < 100)
+    {
+        int counter = 0;
+        while (message[counter] != 0)
+        {
+            if (Random::uniform(0,70)>languageSkill)
+            {
+                alteredMessage[counter] = '*';
+            }
+            counter++;
         }
-
-        counter++;
     }
 
     return alteredMessage;
 }
 
 int Character::getLanguageSkill(int languageSkillNumber) const {
-    return 100;
+	const skillvalue* value = this->getSkillValue((TYPE_OF_SKILL_ID)languageSkillNumber);
+	if (value) {
+		return value->major;
+	}
+	return 0;
 }
 
 void Character::talk(talk_type tt, const std::string &message) { //only for say, whisper, shout

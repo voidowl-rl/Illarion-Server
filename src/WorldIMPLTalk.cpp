@@ -42,25 +42,25 @@ std::string World::languagePrefix(int Language) {
     if (Language==0) {
         return "";
     } else if (Language==1) {
-        return "[hum] ";
+        return "[Human] ";
     } else if (Language==2) {
-        return "[dwa] ";
+        return "[Dwarf] ";
     } else if (Language==3) {
-        return "[elf] ";
+        return "[Elf] ";
     } else if (Language==4) {
-        return "[liz] ";
+        return "[Lizard] ";
     } else if (Language==5) {
-        return "[orc] ";
+        return "[Orc] ";
     } else if (Language==6) {
-        return "[hal] ";
-    } else if (Language==7) {
-        return "[fai] ";
+        return "[Halfing] ";
+    /*} else if (Language==7) {
+        return "[Fairy] ";
     } else if (Language==8) {
-        return "[gno] ";
+        return "[Gnome] ";
     } else if (Language==9) {
-        return "[gob] ";
-    } else if (Language==10) {
-        return "[anc] ";
+        return "[Goblins] ";*/
+    } else if (Language==7) {
+        return "[Ancient] ";
     } else {
         return "";
     }
@@ -89,16 +89,16 @@ std::string World::languageNumberToSkillName(int languageNumber) {
     case 6:
         return "halfling language";
 
-    case 7:
+    /*case 7:
         return "fairy language";
 
     case 8:
         return "gnome language";
 
     case 9:
-        return "goblin language";
+        return "goblin language";*/
 
-    case 10:
+    case 7:
         return "ancient language";
 
     default:
