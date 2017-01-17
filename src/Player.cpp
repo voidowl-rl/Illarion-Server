@@ -65,10 +65,8 @@
 
 #include "script/LuaPlayerDeathScript.hpp"
 #include "script/LuaDepotScript.hpp"
-#include "script/LuaPlayerScript.hpp"
 
 extern std::shared_ptr<LuaPlayerDeathScript>playerDeathScript;
-extern std::shared_ptr<LuaPlayerScript>playerScript;
 extern std::shared_ptr<LuaDepotScript>depotScript;
 
 Player::Player(std::shared_ptr<NetInterface> newConnection)

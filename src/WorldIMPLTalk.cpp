@@ -27,6 +27,9 @@
 #include "netinterface/protocol/ServerCommands.hpp"
 #include "Logger.hpp"
 #include "data/Data.hpp"
+#include "script/LuaPlayerScript.hpp"
+
+extern std::shared_ptr<LuaPlayerScript>playerScript;
 
 void World::sendMessageToAdmin(const std::string &message) {
     Players.for_each([&message](Player *player) {
