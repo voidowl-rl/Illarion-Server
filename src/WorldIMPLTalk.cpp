@@ -146,6 +146,10 @@ void World::sendMessageToAllCharsInRange(const std::string &german, const std::s
     bool is_action = german.substr(0, 3) == "#me";
 
     if (!is_action) {
+        if (cc->getType() == Character::player && playerScript) 
+        {
+            spokenMessage_german = playerScript->beforeSendText(cc, german, tt);
+        }
         // alter message because of the speakers inability to speak...
         spokenMessage_german = cc->alterSpokenMessage(german, cc->getLanguageSkill(cc->getActiveLanguage()));
         spokenMessage_english = cc->alterSpokenMessage(english, cc->getLanguageSkill(cc->getActiveLanguage()));
@@ -163,6 +167,10 @@ void World::sendMessageToAllCharsInRange(const std::string &german, const std::s
             if (is_action) {
                 player->receiveText(tt, player->nls(german, english), cc);
             } else {
+                if (playerScript) 
+                {
+                    playerScript->beforeReceiveText(player, message, tt, cc);
+                }       
                 player->receiveText(tt, prefix + player->nls(german, english), cc);
             }
         }
