@@ -1,0 +1,33 @@
+Hole Source auf den Client.
+Forke Folder auf die VM.
+Kopiere SRC folder auf der VM.
+
+dos2unix / vim oder ähnliches prog durchlaufen lassen:
+viele dateien sind haben windows-zeilenendungen, automake crasht dadurch
+
+Installiere Abhängigkeiten:
+	wichtig: bei apt-get immer die -dev pakete nutzen
+	
+Ersteller libpqxx.pc file für libpqxx falls nicht vorhanden:
+prefix: /usr
+include: PREFIX/include
+path: PREFIX/lib/x86_64-linux-gnu
+
+google mock und google test von git forken
+und mit cmake und make installieren
+*.a files in /usr/lib
+*.lib? in /etc/share
+
+in serversrc/test die
+include anweisungen von libmock_dep/libgtest_dep auskommentieren
+
+dann
+make install
+
+kopieren:
+cp /usr/local/bin/illarion /usr/bin/illarion
+cp /usr/local/etc/illarion.conf /etc/illarion.conf
+
+eventuell vorher die log-datei löschen (die wird sehr groß)
+wenn libserver.a scheitert: zu wenig platz auf der vm. kann mit vbox modifyhd (auf dem host) vergrößert
+und dann ganz normal per partitionsänderung und filesystem vergrößerung behoben werden
