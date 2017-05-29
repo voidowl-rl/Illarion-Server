@@ -33,6 +33,7 @@
 #include "script/LuaLoginScript.hpp"
 #include "script/LuaLogoutScript.hpp"
 #include "script/LuaLearnScript.hpp"
+#include "script/LuaPlayerChatScript.hpp"
 #include "Connection.hpp"
 #include "netinterface/NetInterface.hpp"
 #include "Logger.hpp"
@@ -54,6 +55,7 @@ std::shared_ptr<LuaPlayerDeathScript>playerDeathScript;
 std::shared_ptr<LuaLoginScript>loginScript;
 std::shared_ptr<LuaLogoutScript>logoutScript;
 std::shared_ptr<LuaLearnScript>learnScript;
+std::shared_ptr<LuaPlayerChatScript>playerChatScript;
 std::shared_ptr<LuaWeaponScript> standardFightingScript;
 
 // break out of the main loop if false
@@ -174,6 +176,14 @@ void loadData() {
     } catch (ScriptException &e) {
         Logger::error(LogFacility::Script) << "Error while loading script: server.learn: " << e.what() << Log::end;
     }
+
+    try {
+        auto tmpScript = std::make_shared<LuaPlayerChatScript>("server.playerchat");
+        playerChatScript = tmpScript;
+    } catch (ScriptException &e) {
+        Logger::error(LogFacility::Script) << "Error while loading script: server.playerchat: " << e.what() << Log::end;
+    }
+}
 }
 
 

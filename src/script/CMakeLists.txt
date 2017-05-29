@@ -56,6 +56,8 @@ add_library(script
     LuaMonsterScript.hpp
     LuaNPCScript.cpp
     LuaNPCScript.hpp
+    LuaPlayerScript.cpp
+    LuaPlayerScript.hpp
     LuaPlayerDeathScript.cpp
     LuaPlayerDeathScript.hpp
     LuaQuestScript.cpp

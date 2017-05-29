@@ -44,6 +44,7 @@
 
 #include "data/MonsterTable.hpp"
 #include "data/MonsterAttackTable.hpp"
+#include "script/LuaPlayerChatScript.hpp"
 
 class Player;
 class Monster;

@@ -27,9 +27,9 @@
 #include "netinterface/protocol/ServerCommands.hpp"
 #include "Logger.hpp"
 #include "data/Data.hpp"
-#include "script/LuaPlayerScript.hpp"
+#include "script/LuaPlayerChatScript.hpp"
 
-extern std::shared_ptr<LuaPlayerScript>playerScript;
+extern std::shared_ptr<LuaPlayerScript>playerChatScript;
 
 void World::sendMessageToAdmin(const std::string &message) {
     Players.for_each([&message](Player *player) {
@@ -145,17 +145,18 @@ void World::broadcast(const std::string &german, const std::string &english) {
 
 void World::sendMessageToAllCharsInRange(const std::string &german, const std::string &english, Character::talk_type tt, Character *cc) {
     auto range = getTalkRange(tt);
-    std::string spokenMessage_german, spokenMessage_english, tempMessage;
+    std::string tempMessage;
     bool is_action = german.substr(0, 3) == "#me";
+    bool is_same = &german == &english
 
     if (!is_action) {
-        if (cc->getType() == Character::player && playerScript) 
+        if (cc->getType() == Character::player && is_same && playerChatScript) 
         {
-            spokenMessage_german = playerScript->beforeSendText(cc, german, tt);
+            tempMessage = playerChatScript->beforeSendText(cc, tt, german);
         }
         // alter message because of the speakers inability to speak...
-        spokenMessage_german = cc->alterSpokenMessage(german, cc->getLanguageSkill(cc->getActiveLanguage()));
-        spokenMessage_english = cc->alterSpokenMessage(english, cc->getLanguageSkill(cc->getActiveLanguage()));
+        //spokenMessage_german = cc->alterSpokenMessage(german, cc->getLanguageSkill(cc->getActiveLanguage()));
+        //spokenMessage_english = cc->alterSpokenMessage(english, cc->getLanguageSkill(cc->getActiveLanguage()));
     }
 
     // tell all OTHER players... (but tell them what they understand due to their inability to do so)
@@ -164,17 +165,23 @@ void World::sendMessageToAllCharsInRange(const std::string &german, const std::s
 
     for (const auto &player : Players.findAllCharactersInRangeOf(cc->getPosition(), range)) {
         if (!is_action && player->getId() != cc->getId()) {
-            tempMessage = prefix + player->alterSpokenMessage(player->nls(spokenMessage_german, spokenMessage_english), player->getLanguageSkill(cc->getActiveLanguage()));
-            player->receiveText(tt, tempMessage, cc);
-        } else {
-            if (is_action) {
-                player->receiveText(tt, player->nls(german, english), cc);
+            if (is_same && playerChatScript) {
+                playerChatScript->beforeReceiveText(player, tt, tempMessage, cc);
             } else {
-                if (playerScript) 
-                {
-                    playerScript->beforeReceiveText(player, message, tt, cc);
-                }       
-                player->receiveText(tt, prefix + player->nls(german, english), cc);
+                tempMessage = player->nls(german, english);
+            }
+            //tempMessage = prefix + player->alterSpokenMessage(), player->getLanguageSkill(cc->getActiveLanguage()));
+
+            player->receiveText(tt, prefix + tempMessage, cc);
+        } else {
+            if (!is_same)
+            {
+                tempMessage = player->nls(german, english);
+            }
+            if (is_action) {
+                player->receiveText(tt, tempMessage, cc);
+            } else {       
+                player->receiveText(tt, prefix + tempMessage, cc);
             }
         }
     }

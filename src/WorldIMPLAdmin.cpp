@@ -48,6 +48,7 @@
 #include "script/LuaLoginScript.hpp"
 #include "script/LuaLogoutScript.hpp"
 #include "script/LuaDepotScript.hpp"
+#include "script/LuaPlayerChatScript.hpp"
 
 #include "netinterface/protocol/ServerCommands.hpp"
 #include "netinterface/NetInterface.hpp"
@@ -63,6 +64,7 @@ extern std::unique_ptr<RaceTypeTable> raceTypes;
 extern std::unique_ptr<MonsterTable> monsterDescriptions;
 extern std::unique_ptr<ScheduledScriptsTable> scheduledScripts;
 extern std::shared_ptr<LuaWeaponScript> standardFightingScript;
+extern std::shared_ptr<LuaPlayerChatScript>playerChatScript;
 
 void set_spawn_command(World *, Player *, const std::string &);
 void create_area_command(World *, Player *, const std::string &);
@@ -1053,6 +1055,14 @@ bool World::reload_defs(Player *cp) {
             learnScript = tmpScript;
         } catch (ScriptException &e) {
             reportScriptError(cp, "learn", e.what());
+            ok = false;
+        }
+
+        try {
+            std::shared_ptr<LuaPlayerChatScript>tmpScript = std::make_shared<LuaPlayerChatScript>("server.playerchat");
+            playerChatScript = tmpScript;
+        } catch (ScriptException &e) {
+            reportScriptError(cp, "playerchat", e.what());
             ok = false;
         }
 
