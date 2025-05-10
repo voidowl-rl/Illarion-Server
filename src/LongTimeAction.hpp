@@ -21,6 +21,7 @@
 
 #include "Item.hpp"
 #include "Timer.hpp"
+#include "Character.hpp"
 
 #include <memory>
 
@@ -119,7 +120,14 @@ public:
      */
     void changeSource(position pos);
 
-    void changeSource(const std::string &text);
+    /**
+     * Changes the Source of the last action for this player.
+     * Also sets the ActionType to TALK and aborts other non-talk actions currently active.
+     * <b>Lua: [:changeSource]</b>
+     * @param text the text of the player talk.
+     * @param talkType the type of player talk done (whisper, shout, talk).
+     */
+    void changeSource(const std::string &text, Character::talk_type talkType);
 
     /**
      *changes the Source of the last action to nothing

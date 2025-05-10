@@ -197,7 +197,14 @@ public:
      */
     void changeSource(const position &pos) override;
 
-    void changeSource(const std::string &text) override;
+    /**
+     * Changes the Source of the last action for this player.
+     * Also sets the ActionType to TALK and aborts other non-talk actions currently active.
+     * <b>Lua: [:changeSource]</b>
+     * @param text the text of the player talk.
+     * @param talkType the type of player talk done (whisper, shout, talk).
+     */
+    void changeSource(const std::string &text, talk_type talkType) override;
 
     /**
      *changes the Source of the last action to nothing for this player

@@ -1710,12 +1710,6 @@ void Player::teachMagic(unsigned char type, unsigned char flag) {
 }
 
 void Player::talk(talk_type tt, const std::string &message) {
-    ActionParameters parameters;
-    parameters.type = LUA_TALK;
-    parameters.talkType = tt;
-    parameters.text = message;
-    ltAction->setLastAction(std::shared_ptr<LuaScript>(), parameters, LongTimeAction::ActionType::TALK);
-
     Character::talk(tt, message);
 }
 
@@ -2083,7 +2077,7 @@ void Player::changeSource(const ScriptItem &sI) { ltAction->changeSource(sI); }
 
 void Player::changeSource(const position &pos) { ltAction->changeSource(pos); }
 
-void Player::changeSource(const std::string &text) { ltAction->changeSource(text); }
+void Player::changeSource(const std::string &text, talk_type tt) { ltAction->changeSource(text, tt); }
 
 void Player::changeSource() { ltAction->changeSource(); }
 

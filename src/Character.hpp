@@ -241,7 +241,7 @@ public:
 
     inline virtual void changeSource(const position &pos) {}
 
-    inline virtual void changeSource(const std::string &text) {}
+    inline virtual void changeSource(const std::string &text, talk_type talkType) {}
 
     inline virtual void changeSource() {}
 

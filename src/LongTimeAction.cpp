@@ -19,6 +19,7 @@
 #include "LongTimeAction.hpp"
 
 #include "Character.hpp"
+#include "Logger.hpp"
 #include "Monster.hpp"
 #include "NPC.hpp"
 #include "Player.hpp"
@@ -71,10 +72,6 @@ auto LongTimeAction::checkAction() -> bool {
 void LongTimeAction::startLongTimeAction(unsigned short int timetowait, unsigned short int ani,
                                          unsigned short int redoani, unsigned short int sound,
                                          unsigned short int redosound) {
-    if (currentScriptType == ActionType::TALK) {
-        abortAction(); // talking normally doesn't abort actions, so we have to abort when starting a talk action
-    }
-
     currentActionType = currentScriptType;
     currentActionParameters = currentScriptParameters;
 
@@ -339,9 +336,21 @@ void LongTimeAction::changeSource(position pos) {
     characterType = Character::player;
 }
 
-void LongTimeAction::changeSource(const std::string &text) {
+void LongTimeAction::changeSource(const std::string &text, Character::talk_type talkType) {
+    // Change source is a signal from the lua world that the talk will result in an action
+    // Therefore, action and script values are set for TALK
+
+    if (currentScriptType != ActionType::TALK) {
+        // Talking itself does not abort the previous action
+        // Abort the current action (if any) manually to allow its script abort entrypoint to trigger.
+        abortAction();
+    }
+
+    currentActionParameters.type = LUA_TALK;
+    currentActionParameters.talkType = talkType;
     currentActionParameters.text = text;
     currentScriptParameters = currentActionParameters;
+    currentScriptType = ActionType::TALK;
 }
 
 void LongTimeAction::changeSource() {
